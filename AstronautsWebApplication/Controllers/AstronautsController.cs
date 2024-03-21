@@ -50,10 +50,8 @@ namespace AstronautsWebApplication.Controllers
             return astronaut;
         }
 
-        // PUT: api/Astronauts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAstronaut(Guid id, Astronaut astronaut)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> PatchAstronaut(Guid id, Astronaut astronaut)
         {
             if (id != astronaut.Id)
             {
