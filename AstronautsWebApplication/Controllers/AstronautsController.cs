@@ -20,7 +20,7 @@ namespace AstronautsWebApplication.Controllers
         {
             _context = context;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Astronaut>>> GetAstronauts()
         {
@@ -30,7 +30,7 @@ namespace AstronautsWebApplication.Controllers
             {
                 astronaut.BirthDate = astronaut.BirthDate.Date;
             }
-
+         
             return astronauts;
         }
 
@@ -80,7 +80,6 @@ namespace AstronautsWebApplication.Controllers
         }
 
         // POST: api/Astronauts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Astronaut>> PostAstronaut(Astronaut astronaut)
         {

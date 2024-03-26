@@ -44,10 +44,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowLocalhost3000");
 app.UseCors("AllowAstronautsVercel");
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
