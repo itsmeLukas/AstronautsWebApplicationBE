@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AstronautsWebApplication.Data;
+using AstronautsWebApplication.DataAccess.Repository.IRepository;
+using AstronautsWebApplication.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AstronautsWebApplication.Data;
-using AstronautsWebApplication.Models;
-using Microsoft.AspNetCore.JsonPatch;
 
 namespace AstronautsWebApplication.Controllers
 {
@@ -15,26 +10,26 @@ namespace AstronautsWebApplication.Controllers
     [ApiController]
     public class AstronautsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AstronautsController(ApplicationDbContext context)
+        public AstronautsController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
-        
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Astronaut>>> GetAstronauts()
+        public IEnumerable<Astronaut> GetAstronauts()
         {
-            var astronauts = await _context.Astronauts.ToListAsync();
-         
+            var astronauts = _unitOfWork.Astronaut.GetAll().ToList();
+
             return astronauts;
         }
 
         // GET: api/Astronauts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Astronaut>> GetAstronaut(Guid id)
+        public ActionResult<Astronaut> GetAstronaut(Guid id)
         {
-            var astronaut = await _context.Astronauts.FindAsync(id);
+            var astronaut = _unitOfWork.Astronaut.Get(x => x.Id == id);
 
             if (astronaut == null)
             {
@@ -45,61 +40,46 @@ namespace AstronautsWebApplication.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Astronaut>> PostAstronaut(Astronaut astronaut)
+        public ActionResult<Astronaut> PostAstronaut(Astronaut astronaut)
         {
-            _context.Astronauts.Add(astronaut);
-            await _context.SaveChangesAsync();
+            if (ModelState.IsValid)
+            {
+                _unitOfWork.Astronaut.Add(astronaut);
+                _unitOfWork.Save();
+                return CreatedAtAction("GetAstronaut", new { id = astronaut.Id }, astronaut);
+            }
+            return BadRequest(ModelState);
 
-            return CreatedAtAction("GetAstronaut", new { id = astronaut.Id }, astronaut);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAstronaut(Guid id)
+        public ActionResult DeleteAstronaut(Guid id)
         {
-            var astronaut = await _context.Astronauts.FindAsync(id);
+            var astronaut = _unitOfWork.Astronaut.Get(x => x.Id == id);
             if (astronaut == null)
             {
                 return NotFound();
             }
 
-            _context.Astronauts.Remove(astronaut);
-            await _context.SaveChangesAsync();
+            _unitOfWork.Astronaut.Remove(astronaut);
+            _unitOfWork.Save();
 
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAstronaut(Guid id, Astronaut astronaut)
+        public ActionResult PutAstronaut(Guid id, Astronaut astronaut)
         {
-            if (id != astronaut.Id)
-            {
-                return BadRequest();
-            }
+            //var astronautDB = _unitOfWork.Astronaut.Get(x => x.Id == id);
+            //if (astronaut == null)
+            //{
+            //    return NotFound();
+            //}
 
-            _context.Entry(astronaut).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AstronautExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _unitOfWork.Astronaut.Update(astronaut);
+            _unitOfWork.Save();
 
             return NoContent();
-        }
-
-        private bool AstronautExists(Guid id)
-        {
-            return _context.Astronauts.Any(e => e.Id == id);
         }
     }
 }
