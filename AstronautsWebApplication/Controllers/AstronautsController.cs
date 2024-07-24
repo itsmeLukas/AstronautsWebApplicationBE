@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AstronautsWebApplication.Data;
 using AstronautsWebApplication.Models;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace AstronautsWebApplication.Controllers
 {
@@ -25,11 +26,6 @@ namespace AstronautsWebApplication.Controllers
         public async Task<ActionResult<IEnumerable<Astronaut>>> GetAstronauts()
         {
             var astronauts = await _context.Astronauts.ToListAsync();
-
-            foreach (var astronaut in astronauts)
-            {
-                astronaut.BirthDate = astronaut.BirthDate.Date;
-            }
          
             return astronauts;
         }
@@ -45,13 +41,35 @@ namespace AstronautsWebApplication.Controllers
                 return NotFound();
             }
 
-            astronaut.BirthDate = astronaut.BirthDate.Date;
-
             return astronaut;
         }
 
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> PatchAstronaut(Guid id, Astronaut astronaut)
+        [HttpPost]
+        public async Task<ActionResult<Astronaut>> PostAstronaut(Astronaut astronaut)
+        {
+            _context.Astronauts.Add(astronaut);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetAstronaut", new { id = astronaut.Id }, astronaut);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAstronaut(Guid id)
+        {
+            var astronaut = await _context.Astronauts.FindAsync(id);
+            if (astronaut == null)
+            {
+                return NotFound();
+            }
+
+            _context.Astronauts.Remove(astronaut);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAstronaut(Guid id, Astronaut astronaut)
         {
             if (id != astronaut.Id)
             {
@@ -75,32 +93,6 @@ namespace AstronautsWebApplication.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
-        }
-
-        // POST: api/Astronauts
-        [HttpPost]
-        public async Task<ActionResult<Astronaut>> PostAstronaut(Astronaut astronaut)
-        {
-            _context.Astronauts.Add(astronaut);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAstronaut", new { id = astronaut.Id }, astronaut);
-        }
-
-        // DELETE: api/Astronauts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAstronaut(Guid id)
-        {
-            var astronaut = await _context.Astronauts.FindAsync(id);
-            if (astronaut == null)
-            {
-                return NotFound();
-            }
-
-            _context.Astronauts.Remove(astronaut);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
