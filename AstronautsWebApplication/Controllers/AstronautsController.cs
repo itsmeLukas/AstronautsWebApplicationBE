@@ -18,7 +18,7 @@ namespace AstronautsWebApplication.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Astronaut> GetAstronauts()
+        public async Task<IEnumerable<Astronaut>> GetAstronauts()
         {
             var astronauts = _unitOfWork.Astronaut.GetAll().ToList();
 
@@ -27,7 +27,7 @@ namespace AstronautsWebApplication.Controllers
 
         // GET: api/Astronauts/5
         [HttpGet("{id}")]
-        public ActionResult<Astronaut> GetAstronaut(Guid id)
+        public async Task<ActionResult<Astronaut>> GetAstronaut(Guid id)
         {
             var astronaut = _unitOfWork.Astronaut.Get(x => x.Id == id);
 
@@ -40,7 +40,7 @@ namespace AstronautsWebApplication.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Astronaut> PostAstronaut(Astronaut astronaut)
+        public async Task<ActionResult<Astronaut>> PostAstronaut(Astronaut astronaut)
         {
             if (ModelState.IsValid)
             {
@@ -53,7 +53,7 @@ namespace AstronautsWebApplication.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteAstronaut(Guid id)
+        public async Task<ActionResult> DeleteAstronaut(Guid id)
         {
             var astronaut = _unitOfWork.Astronaut.Get(x => x.Id == id);
             if (astronaut == null)
@@ -68,14 +68,8 @@ namespace AstronautsWebApplication.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult PutAstronaut(Guid id, Astronaut astronaut)
+        public async Task<ActionResult> PutAstronaut(Guid id, Astronaut astronaut)
         {
-            //var astronautDB = _unitOfWork.Astronaut.Get(x => x.Id == id);
-            //if (astronaut == null)
-            //{
-            //    return NotFound();
-            //}
-
             _unitOfWork.Astronaut.Update(astronaut);
             _unitOfWork.Save();
 

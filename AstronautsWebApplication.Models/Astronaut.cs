@@ -6,9 +6,14 @@ namespace AstronautsWebApplication.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public required string Name { get; set; }
+        [Required]
+        public string Name { get; set; }
+        [Required]
         public required string Surname { get; set; }
+        [Required]
         public required DateTime BirthDate { get; set; }
+        [Required]
         public required string Superpower { get; set; }
+
     }
 }
